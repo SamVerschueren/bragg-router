@@ -1,4 +1,5 @@
 'use strict';
+var Promise = require('pinkie-promise');
 var Route = require('./route');
 var methods = [
 	'HEAD',
