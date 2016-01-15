@@ -76,7 +76,7 @@ Router.prototype.routes = function () {
 
 	return function () {
 		var path = this.path;
-		var matched = router.match(path, this.method);
+		var matched = router.match(path, this.method.toLowerCase());
 		var next = Promise.resolve();
 
 		this.matched = matched.path;
