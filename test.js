@@ -34,3 +34,24 @@ test('add middleware', t => {
 	t.same(router._stack[0].paramNames, ['version', 'id']);
 });
 
+test('multiple handlers', async t => {
+	const router = t.context.router;
+
+	router.get('/', function () {
+		this.body = 'Foo';
+	}, function () {
+		this.body += ' Bar';
+	}, function () {
+		this.body += ' Baz';
+	});
+
+	var ctx = {
+		path: '/',
+		method: 'GET'
+	};
+
+	await router.routes().call(ctx);
+
+	t.is(ctx.body, 'Foo Bar Baz');
+});
+

@@ -86,10 +86,9 @@ Router.prototype.routes = function () {
 
 			while (matched.route && i--) {
 				var route = matched.pathAndMethod[i];
-				var ii = route.stack.length;
 
-				while (ii--) {
-					next = Promise.resolve(route.stack[ii].call(this));
+				for (var j = 0; j < route.stack.length; j++) {
+					next = next.then(Promise.resolve(route.stack[j].call(this)));
 				}
 			}
 		}
