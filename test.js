@@ -37,12 +37,12 @@ test('add middleware', t => {
 test('multiple handlers', async t => {
 	const router = t.context.router;
 
-	router.get('/', function () {
-		this.body = 'Foo';
-	}, function () {
-		this.body += ' Bar';
-	}, function () {
-		this.body += ' Baz';
+	router.get('/', function foo() {
+		return 'Foo';
+	}, function bar(result) {
+		return Promise.resolve(`${result} Bar`);
+	}, function baz(result) {
+		this.body = `${result} Baz`;
 	});
 
 	var ctx = {

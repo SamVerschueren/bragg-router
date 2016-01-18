@@ -13,8 +13,8 @@ $ npm install --save bragg-router
 ## Usage
 
 ```js
-const app = require('bragg')();
-const router = require('bragg-router')();
+var app = require('bragg')();
+var router = require('bragg-router')();
 
 router.get('/', function () {
     this.body = 'Home';
@@ -22,6 +22,25 @@ router.get('/', function () {
 
 router.get('/user/{id}', function () {
     this.body = 'Retrieve user with id ' + this.request.params.id;
+});
+
+app.use(router.routes());
+
+exports.handler = app.listen();
+```
+
+### Multiple handlers
+
+When a handler returns a promise, that promise will be resolved first. The result of following example will be `Foo Bar`.
+
+```js
+var app = require('bragg')();
+var router = require('bragg-router')();
+
+router.get('/', function () {
+    return Promise.resolve('Foo');
+}, function () {
+    this.body = result + ' Bar';
 });
 
 app.use(router.routes());

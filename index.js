@@ -74,10 +74,14 @@ Router.prototype.register = function (path, methods, middleware) {
 Router.prototype.routes = function () {
 	var router = this;
 
+	function reduceFn(promise, fn) {
+		return promise.then(fn.bind(this));
+	}
+
 	return function () {
 		var path = this.path;
 		var matched = router.match(path, this.method.toLowerCase());
-		var next = Promise.resolve();
+		var next;
 
 		this.matched = matched.path;
 
@@ -87,9 +91,7 @@ Router.prototype.routes = function () {
 			while (matched.route && i--) {
 				var route = matched.pathAndMethod[i];
 
-				for (var j = 0; j < route.stack.length; j++) {
-					next = next.then(Promise.resolve(route.stack[j].call(this)));
-				}
+				next = route.stack.reduce(reduceFn.bind(this), Promise.resolve());
 			}
 		}
 
