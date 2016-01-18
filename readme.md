@@ -16,12 +16,12 @@ $ npm install --save bragg-router
 var app = require('bragg')();
 var router = require('bragg-router')();
 
-router.get('/', function () {
-    this.body = 'Home';
+router.get('/', function (ctx) {
+    ctx.body = 'Home';
 });
 
-router.get('/user/{id}', function () {
-    this.body = 'Retrieve user with id ' + this.request.params.id;
+router.get('/user/{id}', function (ctx) {
+    ctx.body = 'Retrieve user with id ' + ctx.request.params.id;
 });
 
 app.use(router.routes());
@@ -39,8 +39,8 @@ var router = require('bragg-router')();
 
 router.get('/', function () {
     return Promise.resolve('Foo');
-}, function () {
-    this.body = result + ' Bar';
+}, function (ctx, result) {
+    ctx.body = result + ' Bar';
 });
 
 app.use(router.routes());

@@ -75,15 +75,18 @@ Router.prototype.routes = function () {
 	var router = this;
 
 	function reduceFn(promise, fn) {
-		return promise.then(fn.bind(this));
+		var ctx = this;
+		return promise.then(function (result) {
+			return fn(ctx, result);
+		});
 	}
 
-	return function () {
-		var path = this.path;
-		var matched = router.match(path, this.method.toLowerCase());
+	return function (ctx) {
+		var path = ctx.path;
+		var matched = router.match(path, ctx.method.toLowerCase());
 		var next;
 
-		this.matched = matched.path;
+		ctx.matched = matched.path;
 
 		if (matched.pathAndMethod.length) {
 			var i = matched.pathAndMethod.length;
@@ -91,7 +94,7 @@ Router.prototype.routes = function () {
 			while (matched.route && i--) {
 				var route = matched.pathAndMethod[i];
 
-				next = route.stack.reduce(reduceFn.bind(this), Promise.resolve());
+				next = route.stack.reduce(reduceFn.bind(ctx), Promise.resolve());
 			}
 		}
 

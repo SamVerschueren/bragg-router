@@ -37,20 +37,18 @@ test('add middleware', t => {
 test('multiple handlers', async t => {
 	const router = t.context.router;
 
-	router.get('/', function foo() {
-		return 'Foo';
-	}, function bar(result) {
-		return Promise.resolve(`${result} Bar`);
-	}, function baz(result) {
-		this.body = `${result} Baz`;
-	});
+	router.get('/',
+		() => 'Foo',
+		(ctx, result) => Promise.resolve(`${result} Bar`),
+		(ctx, result) => ctx.body = `${result} Baz`
+	);
 
-	var ctx = {
+	const ctx = {
 		path: '/',
 		method: 'GET'
 	};
 
-	await router.routes().call(ctx);
+	await router.routes()(ctx);
 
 	t.is(ctx.body, 'Foo Bar Baz');
 });
