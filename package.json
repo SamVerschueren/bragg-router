@@ -1,6 +1,6 @@
 {
   "name": "bragg-router",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Router middleware for bragg",
   "license": "MIT",
   "repository": "SamVerschueren/bragg-router",
