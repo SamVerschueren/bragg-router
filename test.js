@@ -53,3 +53,17 @@ test('multiple handlers', async t => {
 	t.is(ctx.body, 'Foo Bar Baz');
 });
 
+test('regex path', async t => {
+	const router = t.context.router;
+
+	router.get(/^foo?$/, (ctx) => ctx.body = ctx.path);
+
+	const ctx = {path: 'fo', method: 'GET'};
+	const ctx2 = {path: 'foo', method: 'GET'};
+
+	await router.routes()(ctx);
+	await router.routes()(ctx2);
+
+	t.is(ctx.body, 'fo');
+	t.is(ctx2.body, 'foo');
+});

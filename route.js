@@ -28,10 +28,16 @@ function Route(path, methods, middleware, opts) {
 		}
 	});
 
-	this.paramNames = extractPathParams(path);
+	if (!(path instanceof RegExp)) {
+		this.paramNames = extractPathParams(path);
+	}
 }
 
 Route.prototype.match = function (path) {
+	if (this.path instanceof RegExp) {
+		return this.path.test(path);
+	}
+
 	return this.path === path;
 };
 
