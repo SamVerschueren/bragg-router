@@ -48,7 +48,7 @@ app.use(router.routes());
 exports.handler = app.listen();
 ```
 
-### Mapping template
+## Mapping template
 
 In order for you to use the router, you will have to add extra properties to your [mapping template](https://github.com/SamVerschueren/bragg#mapping-template).
 
@@ -60,6 +60,34 @@ In order for you to use the router, you will have to add extra properties to you
 ```
 
 [Bragg](https://github.com/SamVerschueren/bragg) will detect these properties and expose them as `path` and `method` properties in the middlewares.
+
+
+## API
+
+### *verb*(path, ...middlewares)
+
+#### verb
+
+Type: `string`  
+Values: `get` `post` `put` `delete` `patch` `head` `update`
+
+HTTP-method to listen to.
+
+#### path
+
+Type: `string`
+
+Action of the request. Accepts a [matcher](https://github.com/sindresorhus/matcher) pattern.
+
+#### middlewares
+
+Type: `function`
+
+Functions to be executed the request matches the `path`.
+
+### routes()
+
+Returns a middleware function that can be used by [bragg](https://github.com/SamVerschueren/bragg).
 
 
 ## License

@@ -56,7 +56,7 @@ test('multiple handlers', async t => {
 test('regex path', async t => {
 	const router = t.context.router;
 
-	router.get(/^foo?$/, (ctx) => ctx.body = ctx.path);
+	router.get('fo*', (ctx) => ctx.body = ctx.path);
 
 	const ctx = {path: 'fo', method: 'GET'};
 	const ctx2 = {path: 'foo', method: 'GET'};

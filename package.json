@@ -28,6 +28,7 @@
     "lambda"
   ],
   "dependencies": {
+    "matcher": "^0.1.0",
     "pinkie-promise": "^2.0.0"
   },
   "devDependencies": {

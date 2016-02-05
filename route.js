@@ -1,4 +1,5 @@
 'use strict';
+var matcher = require('matcher');
 
 function extractPathParams(path) {
 	var paramNames = [];
@@ -34,11 +35,7 @@ function Route(path, methods, middleware, opts) {
 }
 
 Route.prototype.match = function (path) {
-	if (this.path instanceof RegExp) {
-		return this.path.test(path);
-	}
-
-	return this.path === path;
+	return matcher.isMatch(path, this.path);
 };
 
 module.exports = Route;
