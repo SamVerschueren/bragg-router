@@ -13,15 +13,15 @@ $ npm install --save bragg-router
 ## Usage
 
 ```js
-var app = require('bragg')();
-var router = require('bragg-router')();
+const app = require('bragg')();
+const router = require('bragg-router')();
 
-router.get('/', function (ctx) {
+router.get('/', ctx => {
     ctx.body = 'Home';
 });
 
-router.get('/user/{id}', function (ctx) {
-    ctx.body = 'Retrieve user with id ' + ctx.request.params.id;
+router.get('/user/{id}', ctx => {
+    ctx.body = `Retrieve user with id ${ctx.request.params.id}`;
 });
 
 app.use(router.routes());
@@ -34,14 +34,15 @@ exports.handler = app.listen();
 When a handler returns a promise, that promise will be resolved first. The result of following example will be `Foo Bar`.
 
 ```js
-var app = require('bragg')();
-var router = require('bragg-router')();
+const app = require('bragg')();
+const router = require('bragg-router')();
 
-router.get('/', function () {
-    return Promise.resolve('Foo');
-}, function (ctx, result) {
-    ctx.body = result + ' Bar';
-});
+router.get('/',
+	() => Promise.resolve('Foo');
+	(ctx, result) => {
+    	ctx.body = `${result} Bar`;
+	}
+);
 
 app.use(router.routes());
 
@@ -68,7 +69,7 @@ In order for you to use the router, you will have to add extra properties to you
 
 #### verb
 
-Type: `string`  
+Type: `string`<br>
 Values: `get` `post` `put` `delete` `patch` `head` `update`
 
 HTTP-method to listen to.

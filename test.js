@@ -1,16 +1,20 @@
 import test from 'ava';
-import m from './';
+import m from '.';
 
 test.beforeEach(t => {
 	t.context.router = m();
 });
 
 test('create', t => {
-	t.is(t.context.router.constructor, m);
-	t.same(t.context.router._stack, []);
+	t.deepEqual(t.context.router._stack, []);
 });
 
-test('add middleware', t => {
+test('error', t => {
+	const router = t.context.router;
+	t.throws(() => router.get('/', 'foo'), 'get `/`: middleware must be a function, not `string`');
+});
+
+test('add get middleware', t => {
 	const router = t.context.router;
 	const handler = () => { };
 
@@ -18,11 +22,11 @@ test('add middleware', t => {
 
 	t.is(router._stack.length, 1);
 	t.is(router._stack[0].path, '/');
-	t.same(router._stack[0].methods, ['get']);
-	t.same(router._stack[0].paramNames, []);
+	t.deepEqual(router._stack[0].methods, ['get']);
+	t.deepEqual(router._stack[0].paramNames, []);
 });
 
-test('add middleware', t => {
+test('add post middleware', t => {
 	const router = t.context.router;
 	const handler = () => { };
 
@@ -30,8 +34,20 @@ test('add middleware', t => {
 
 	t.is(router._stack.length, 1);
 	t.is(router._stack[0].path, '/{version}/user/{id}');
-	t.same(router._stack[0].methods, ['post']);
-	t.same(router._stack[0].paramNames, ['version', 'id']);
+	t.deepEqual(router._stack[0].methods, ['post']);
+	t.deepEqual(router._stack[0].paramNames, ['version', 'id']);
+});
+
+test('put route without params before route with params', t => {
+	const router = t.context.router;
+	const handler = () => { };
+
+	router.get('/{version}', handler);
+	router.get('/user', handler);
+
+	t.is(router._stack.length, 2);
+	t.is(router._stack[0].path, '/user');
+	t.is(router._stack[1].path, '/{version}');
 });
 
 test('multiple handlers', async t => {
@@ -40,7 +56,9 @@ test('multiple handlers', async t => {
 	router.get('/',
 		() => 'Foo',
 		(ctx, result) => Promise.resolve(`${result} Bar`),
-		(ctx, result) => ctx.body = `${result} Baz`
+		(ctx, result) => {
+			ctx.body = `${result} Baz`;
+		}
 	);
 
 	const ctx = {
@@ -56,7 +74,9 @@ test('multiple handlers', async t => {
 test('regex path', async t => {
 	const router = t.context.router;
 
-	router.get('fo*', (ctx) => ctx.body = ctx.path);
+	router.get('fo*', ctx => {
+		ctx.body = ctx.path;
+	});
 
 	const ctx = {path: 'fo', method: 'GET'};
 	const ctx2 = {path: 'foo', method: 'GET'};

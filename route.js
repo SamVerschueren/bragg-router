@@ -1,11 +1,11 @@
 'use strict';
-var matcher = require('matcher');
+const matcher = require('matcher');
 
 function extractPathParams(path) {
-	var paramNames = [];
+	const paramNames = [];
 
-	var regex = new RegExp('\{(\\w+)\}', 'g');
-	var res = regex.exec(path);
+	const regex = new RegExp('{(\\w+)}', 'g');
+	let res = regex.exec(path);
 
 	while (res !== null) {
 		paramNames.push(res[1]);
@@ -15,27 +15,30 @@ function extractPathParams(path) {
 	return paramNames;
 }
 
-function Route(path, methods, middleware, opts) {
-	this.path = path;
-	this.opts = opts || {};
-	this.methods = methods;
-	this.paramNames = [];
-	this.stack = Array.isArray(middleware) ? middleware : [middleware];
+class Route {
 
-	this.stack.forEach(function (fn) {
-		var type = (typeof fn);
-		if (type !== 'function') {
-			throw new Error(methods.toString() + ' `' + path + '`: `middleware` must be a function, not `' + type + '`');
+	constructor(path, methods, middleware, opts) {
+		this.path = path;
+		this.opts = opts || {};
+		this.methods = methods;
+		this.paramNames = [];
+		this.stack = Array.isArray(middleware) ? middleware : [middleware];
+
+		for (const fn of this.stack) {
+			const type = typeof fn;
+			if (type !== 'function') {
+				throw new Error(`${methods.toString()} \`${path}\`: middleware must be a function, not \`${type}\``);
+			}
 		}
-	});
 
-	if (!(path instanceof RegExp)) {
-		this.paramNames = extractPathParams(path);
+		if (!(path instanceof RegExp)) {
+			this.paramNames = extractPathParams(path);
+		}
+	}
+
+	match(path) {
+		return matcher.isMatch(path, this.path);
 	}
 }
-
-Route.prototype.match = function (path) {
-	return matcher.isMatch(path, this.path);
-};
 
 module.exports = Route;

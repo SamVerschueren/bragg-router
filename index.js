@@ -1,7 +1,6 @@
 'use strict';
-var Promise = require('pinkie-promise');
-var Route = require('./route');
-var methods = [
+const Route = require('./route');
+const methods = [
 	'HEAD',
 	'OPTIONS',
 	'GET',
@@ -11,20 +10,95 @@ var methods = [
 	'DELETE'
 ];
 
-function Router() {
-	if (!(this instanceof Router)) {
-		return new Router();
+class Router {
+	constructor() {
+		this._stack = [];
 	}
 
-	this._stack = [];
+	register(path, methods, middleware) {
+		const stack = this._stack;
+		const route = new Route(path, methods, middleware);
+
+		if (methods.length || !stack.length) {
+			// if we don't have parameters, put before any with same route
+			// nesting level but with parameters
+			let added = false;
+
+			if (!route.paramNames.length) {
+				const routeNestingLevel = route.path.toString().split('/').length;
+
+				added = stack.some((m, i) => {
+					const mNestingLevel = m.path.toString().split('/').length;
+					const isParamRoute = Boolean(m.paramNames.length);
+					if (routeNestingLevel === mNestingLevel && isParamRoute) {
+						return stack.splice(i, 0, route);
+					}
+					return false;
+				});
+			}
+
+			if (!added) {
+				stack.push(route);
+			}
+		}
+
+		return route;
+	}
+
+	routes() {
+		return ctx => {
+			const path = ctx.path;
+			const matched = this.match(path, ctx.method.toLowerCase());
+			let next;
+
+			ctx.matched = matched.path;
+
+			if (matched.pathAndMethod.length) {
+				let i = matched.pathAndMethod.length;
+
+				while (matched.route && i--) {
+					const route = matched.pathAndMethod[i];
+					next = route.stack.reduce((promise, fn) => {
+						return promise.then(result => fn(ctx, result));
+					}, Promise.resolve());
+				}
+			}
+
+			return next;
+		};
+	}
+
+	match(path, method) {
+		const stack = this._stack;
+		const matched = {
+			path: [],
+			pathAndMethod: [],
+			route: false
+		};
+
+		for (const route of stack) {
+			if (route.match(path)) {
+				matched.path.push(route);
+
+				if (route.methods.length === 0 || route.methods.indexOf(method) !== -1) {
+					matched.pathAndMethod.push(route);
+
+					if (route.methods.length) {
+						matched.route = true;
+					}
+				}
+			}
+		}
+
+		return matched;
+	}
 }
 
-methods.forEach(function (method) {
+methods.forEach(method => {
 	method = method.toLowerCase();
 
 	Router.prototype[method] = function (path) {
-		var middleware = Array.prototype.slice.call(arguments, 1);
-
+		const middleware = Array.prototype.slice.call(arguments, 1);
 		this.register(path, [method], middleware);
 		return this;
 	};
@@ -32,99 +106,4 @@ methods.forEach(function (method) {
 
 Router.prototype.del = Router.prototype.delete;
 
-Router.prototype.register = function (path, methods, middleware) {
-	var stack = this._stack;
-	var route = new Route(path, methods, middleware);
-
-	if (methods.length || !stack.length) {
-		var added = false;
-
-		if (!route.paramNames.length) {
-			var routeNestingLevel = route.path.toString().split('/').length;
-
-			added = stack.some(function (m, i) {
-				var mNestingLevel = m.path.toString().split('/').length;
-				var isParamRoute = Boolean(m.paramNames.length);
-				if (routeNestingLevel === mNestingLevel && isParamRoute) {
-					return stack.splice(i, 0, route);
-				}
-			});
-		}
-
-		if (!added) {
-			stack.push(route);
-		}
-	} else {
-		stack.some(function (m, i) {
-			if (!m.methods.length && i === stack.length - 1) {
-				return stack.push(route);
-			} else if (m.methods.length) {
-				if (stack[i - 1]) {
-					return stack.splice(i, 0, route);
-				}
-
-				stack.unshift(route);
-			}
-		});
-	}
-
-	return route;
-};
-
-Router.prototype.routes = function () {
-	var router = this;
-
-	function reduceFn(promise, fn) {
-		var ctx = this;
-		return promise.then(function (result) {
-			return fn(ctx, result);
-		});
-	}
-
-	return function (ctx) {
-		var path = ctx.path;
-		var matched = router.match(path, ctx.method.toLowerCase());
-		var next;
-
-		ctx.matched = matched.path;
-
-		if (matched.pathAndMethod.length) {
-			var i = matched.pathAndMethod.length;
-
-			while (matched.route && i--) {
-				var route = matched.pathAndMethod[i];
-
-				next = route.stack.reduce(reduceFn.bind(ctx), Promise.resolve());
-			}
-		}
-
-		return next;
-	};
-};
-
-Router.prototype.match = function (path, method) {
-	var stack = this._stack;
-	var matched = {
-		path: [],
-		pathAndMethod: [],
-		route: false
-	};
-
-	stack.forEach(function (route) {
-		if (route.match(path)) {
-			matched.path.push(route);
-
-			if (route.methods.length === 0 || route.methods.indexOf(method) !== -1) {
-				matched.pathAndMethod.push(route);
-
-				if (route.methods.length) {
-					matched.route = true;
-				}
-			}
-		}
-	});
-
-	return matched;
-};
-
-module.exports = Router;
+module.exports = () => new Router();
