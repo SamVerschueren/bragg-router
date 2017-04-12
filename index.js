@@ -1,5 +1,6 @@
 'use strict';
 const Route = require('./route');
+
 const methods = [
 	'HEAD',
 	'OPTIONS',
@@ -19,12 +20,11 @@ class Router {
 		const stack = this._stack;
 		const route = new Route(path, methods, middleware);
 
-		if (methods.length || !stack.length) {
-			// if we don't have parameters, put before any with same route
-			// nesting level but with parameters
+		if (methods.length > 0 || stack.length === 0) {
+			// If we don't have parameters, put before any with same route nesting level but with parameters
 			let added = false;
 
-			if (!route.paramNames.length) {
+			if (route.paramNames.length === 0) {
 				const routeNestingLevel = route.path.toString().split('/').length;
 
 				added = stack.some((m, i) => {
@@ -53,7 +53,7 @@ class Router {
 
 			ctx.matched = matched.path;
 
-			if (matched.pathAndMethod.length) {
+			if (matched.pathAndMethod.length > 0) {
 				let i = matched.pathAndMethod.length;
 
 				while (matched.route && i--) {
@@ -83,7 +83,7 @@ class Router {
 				if (route.methods.length === 0 || route.methods.indexOf(method) !== -1) {
 					matched.pathAndMethod.push(route);
 
-					if (route.methods.length) {
+					if (route.methods.length > 0) {
 						matched.route = true;
 					}
 				}
