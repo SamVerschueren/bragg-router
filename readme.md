@@ -40,7 +40,7 @@ const router = require('bragg-router')();
 router.get('/',
 	() => Promise.resolve('Foo');
 	(ctx, result) => {
-    	ctx.body = `${result} Bar`;
+		ctx.body = `${result} Bar`;
 	}
 );
 
