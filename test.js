@@ -44,10 +44,12 @@ test('put route without params before route with params', t => {
 
 	router.get('/{version}', handler);
 	router.get('/user', handler);
+	router.get('/user/v1', handler);
 
-	t.is(router._stack.length, 2);
+	t.is(router._stack.length, 3);
 	t.is(router._stack[0].path, '/user');
 	t.is(router._stack[1].path, '/{version}');
+	t.is(router._stack[2].path, '/user/v1');
 });
 
 test('multiple handlers', async t => {

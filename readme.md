@@ -1,4 +1,7 @@
-# bragg-router [![Build Status](https://travis-ci.org/SamVerschueren/bragg-router.svg?branch=master)](https://travis-ci.org/SamVerschueren/bragg-router)
+# bragg-router
+
+[![Build Status](https://travis-ci.org/SamVerschueren/bragg-router.svg?branch=master)](https://travis-ci.org/SamVerschueren/bragg-router)
+[![Coverage Status](https://coveralls.io/repos/github/SamVerschueren/bragg-router/badge.svg?branch=master)](https://coveralls.io/github/SamVerschueren/bragg-router?branch=master)
 
 > Router middleware for [bragg](https://github.com/SamVerschueren/bragg).
 
@@ -48,19 +51,6 @@ app.use(router.routes());
 
 exports.handler = app.listen();
 ```
-
-## Mapping template
-
-In order for you to use the router, you will have to add extra properties to your [mapping template](https://github.com/SamVerschueren/bragg#mapping-template).
-
-```json
-{
-    "resource-path": "$context.resourcePath",
-    "http-method": "$context.httpMethod"
-}
-```
-
-[Bragg](https://github.com/SamVerschueren/bragg) will detect these properties and expose them as `path` and `method` properties in the middlewares.
 
 
 ## API
