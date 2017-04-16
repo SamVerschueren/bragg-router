@@ -89,29 +89,12 @@ test('regex path', async t => {
 	t.is(ctx2.body, 'foo');
 });
 
-test('do not extract parameters on AWS', async t => {
+test('extracting parameters', async t => {
 	const router = t.context.router;
 
 	router.get('/{version}', () => { });
 
 	const ctx = {
-		path: '/v1',
-		method: 'GET',
-		request: { }
-	};
-
-	await router.routes()(ctx);
-
-	t.deepEqual(ctx.request, { });
-});
-
-test('extracting parameters on Azure', async t => {
-	const router = t.context.router;
-
-	router.get('/{version}', () => { });
-
-	const ctx = {
-		cloud: 'azure',
 		path: '/v1',
 		method: 'GET',
 		request: { }
@@ -126,13 +109,12 @@ test('extracting parameters on Azure', async t => {
 	});
 });
 
-test('extracting multiple parameters on Azure', async t => {
+test('extracting multiple parameters', async t => {
 	const router = t.context.router;
 
 	router.get('/{version}/foo/{id}', () => { });
 
 	const ctx = {
-		cloud: 'azure',
 		path: '/v1/foo/123',
 		method: 'GET',
 		request: { }
@@ -142,6 +124,32 @@ test('extracting multiple parameters on Azure', async t => {
 
 	t.deepEqual(ctx.request, {
 		params: {
+			version: 'v1',
+			id: '123'
+		}
+	});
+});
+
+test('merge route params with request params', async t => {
+	const router = t.context.router;
+
+	router.get('/{version}/foo/{id}', () => { });
+
+	const ctx = {
+		path: '/v1/foo/123',
+		method: 'GET',
+		request: {
+			params: {
+				name: 'foo'
+			}
+		}
+	};
+
+	await router.routes()(ctx);
+
+	t.deepEqual(ctx.request, {
+		params: {
+			name: 'foo',
 			version: 'v1',
 			id: '123'
 		}

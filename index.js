@@ -59,10 +59,10 @@ class Router {
 				while (matched.route && i--) {
 					const route = matched.pathAndMethod[i];
 
-					if (ctx.cloud === 'azure') {
-						// Only extract the params when running on Azure
-						Object.defineProperty(ctx.request, 'params', {enumerable: true, writable: true, value: route.getParams(path) || {}});
-					}
+					const params = ctx.request.params || {};
+
+					// Extract the `params` from the route
+					Object.defineProperty(ctx.request, 'params', {enumerable: true, writable: true, value: Object.assign(params, route.getParams(path))});
 
 					next = route.stack.reduce((promise, fn) => {
 						return promise.then(result => fn(ctx, result));
