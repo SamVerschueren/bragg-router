@@ -111,6 +111,27 @@ test('extracting parameters', async t => {
 	});
 });
 
+test('decode extracted path parameters', async t => {
+	const router = t.context.router;
+
+	router.get('/{version}/foo/{id}', () => { });
+
+	const ctx = {
+		path: '/v1/foo/18%3A07',
+		method: 'GET',
+		request: { }
+	};
+
+	await router.routes()(ctx);
+
+	t.deepEqual(ctx.request, {
+		params: {
+			version: 'v1',
+			id: '18:07'
+		}
+	});
+});
+
 test('extracting multiple parameters', async t => {
 	const router = t.context.router;
 

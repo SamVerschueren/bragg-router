@@ -52,7 +52,7 @@ class Route {
 			const res = regex.exec(part);
 
 			if (res !== null) {
-				params[res[1]] = pathParams[i];
+				params[res[1]] = decodeURIComponent(pathParams[i]);
 			}
 		}
 
