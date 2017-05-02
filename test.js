@@ -157,3 +157,27 @@ test('merge route params with request params', async t => {
 		}
 	});
 });
+
+test('match correct route with empty parts', async t => {
+	const router = t.context.router;
+
+	router.get('/{version}/foo/{patient}/{id}', () => { });
+	router.get('/{version}/foo/{patient}', () => { });
+
+	const ctx = {
+		path: '/v1/foo//',
+		method: 'GET',
+		request: { }
+	};
+
+	await router.routes()(ctx);
+
+	t.true(ctx.matched.length === 1);
+	t.deepEqual(ctx.request, {
+		params: {
+			version: 'v1',
+			patient: '',
+			id: ''
+		}
+	});
+});

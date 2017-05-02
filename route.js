@@ -45,7 +45,7 @@ class Route {
 
 		const parts = this.path.split('/');
 		const pathParams = path.split('/');
-		const regex = new RegExp('^{(\\w+)}$', 'g');
+		const regex = new RegExp('^{(\\w+)}$');
 
 		for (let i = 0; i < parts.length; i++) {
 			const part = parts[i];
@@ -60,7 +60,10 @@ class Route {
 	}
 
 	match(path) {
-		return matcher.isMatch(path, this.path.replace(/{\w+}/g, '*'));
+		const pathParts = path.split('/');
+		const parts = this.path.split('/');
+
+		return pathParts.length === parts.length && matcher.isMatch(path, this.path.replace(/{\w+}/g, '*'));
 	}
 }
 
