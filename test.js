@@ -202,3 +202,27 @@ test('match correct route with empty parts', async t => {
 		}
 	});
 });
+
+test('only match most specific path', async t => {
+	const router = t.context.router;
+
+	router.get('/foo', ctx => {
+		ctx.body = 'bar';
+	});
+	router.get('/{version}', ctx => {
+		ctx.body = ctx.request.params.version;
+	});
+
+	const ctx = {
+		path: '/foo',
+		method: 'GET',
+		request: { }
+	};
+
+	await router.routes()(ctx);
+
+	t.is(ctx.body, 'bar');
+	t.deepEqual(ctx.request, {
+		params: { }
+	});
+});

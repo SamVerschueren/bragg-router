@@ -54,20 +54,16 @@ class Router {
 			ctx.matched = matched.path;
 
 			if (matched.pathAndMethod.length > 0) {
-				let i = matched.pathAndMethod.length;
+				const route = matched.pathAndMethod[0];
 
-				while (matched.route && i--) {
-					const route = matched.pathAndMethod[i];
+				const params = ctx.request.params || {};
 
-					const params = ctx.request.params || {};
+				// Extract the `params` from the route
+				Object.defineProperty(ctx.request, 'params', {enumerable: true, writable: true, value: Object.assign(params, route.getParams(path))});
 
-					// Extract the `params` from the route
-					Object.defineProperty(ctx.request, 'params', {enumerable: true, writable: true, value: Object.assign(params, route.getParams(path))});
-
-					next = route.stack.reduce((promise, fn) => {
-						return promise.then(result => fn(ctx, result));
-					}, Promise.resolve());
-				}
+				next = route.stack.reduce((promise, fn) => {
+					return promise.then(result => fn(ctx, result));
+				}, Promise.resolve());
 			}
 
 			return next;
