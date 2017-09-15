@@ -111,6 +111,30 @@ test('extracting parameters', async t => {
 	});
 });
 
+test('extracting parameters with colon separator', async t => {
+	const router = t.context.router;
+
+	router.get('cron:{group}', () => { });
+
+	const ctx = {
+		path: 'cron:foo',
+		method: 'POST',
+		request: {
+			params: {
+				group: 'foo'
+			}
+		}
+	};
+
+	await router.routes()(ctx);
+
+	t.deepEqual(ctx.request, {
+		params: {
+			group: 'foo'
+		}
+	});
+});
+
 test('decode extracted path parameters', async t => {
 	const router = t.context.router;
 

@@ -43,8 +43,8 @@ class Route {
 	getParams(path) {
 		const params = Object.create({});
 
-		const parts = this.path.split('/');
-		const pathParams = path.split('/');
+		const parts = this.path.split(/[/:]/);
+		const pathParams = path.split(/[/:]/);
 		const regex = new RegExp('^{(\\w+)}$');
 
 		for (let i = 0; i < parts.length; i++) {
